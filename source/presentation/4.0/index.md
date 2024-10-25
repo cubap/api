@@ -273,8 +273,16 @@ The annotation above could be expressed as its fragment-based equivalent:
 
 ### Annotation Page
 
+"Overlapping elements with a larger z-index cover those with a smaller one."
+link to https://developer.mozilla.org/en-US/docs/Web/CSS/z-index
+
+
 ### Annotation Collection
 
+deal with this:
+https://github.com/IIIF/api/pull/2304/files#diff-cc70f02818f6bed2b14dfbf8bf3206e0825047951c8e83ad56fc73e489f82ac4R1757
+
+use totalItems? https://iiif.io/api/discovery/1.0/#totalitems 
 
 ### Manifest
 
