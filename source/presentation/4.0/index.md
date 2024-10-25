@@ -245,6 +245,8 @@ Example Annotation that positions a model at a point within a Scene:
 
 #### URI Fragments
 
+(move up, include xywh)
+
 The point may instead be defined using a short-hand form of a URI Fragment at the end of the `id` of the Scene as the `target` of the Annotation. The name of the fragment parameter is `xyz` and its value is the x, y and z values separated by commas. Each value can be expressed as either an integer or a floating point number.
 
 The annotation above could be expressed as its fragment-based equivalent:
@@ -305,6 +307,10 @@ content state intended to:
  - modify the Container in a particular context (`scope`, storytelling)
  - contribute additional information permanently (rerum **inbox** - move to protocol doc)
 
+### Using Content State
+
+(not in section 6)
+
 ### reset
 
 "diff", "original state" etc
@@ -314,7 +320,16 @@ behavior: sequence
 
 ## Selectors
 
+preamble - cover all the use cases
+
 ### SpecificResource
+
+(This heading should be more descriptive)
+
+fragments/segments/parts of resources
+SvgSelector
+xywh
+
 
 ### PointSelector
 
@@ -493,6 +508,8 @@ Painting a Scene into another while excluding import of several types of resourc
 
 ## Advanced Association Features
 
+(This needs to be sprinkled throughout above - especially as SpecificResource must be introduced early for 3D)
+
 ### Nesting
 
 A Canvas can be painted into a Scene as an Annotation, but the 2D nature of Canvases requires special consideration due to important differences between Canvases and Scenes. A Canvas describes a bounded 2D space with finite `height` and `width` measured in pixels with a pixel origin at the top-left corner of the Canvas, while Scenes describe a boundless 3D space with x, y, and z axes of arbitrary coordinate units and a coordinate origin at the center of the space. It is important to note that in many cases the pixel scale used by a Canvas or a 2D image content resource will not be in proportion to the desired 3D coordinate unit scale in a Scene. 
@@ -520,32 +537,76 @@ Example placing top-left at (0, 1, 0); bottom-left at (0, 0, 0); bottom-right at
 ```
 
 
-### Segments
-
 ### Embedded Content
 
-### Choice of Alternative Resources
+e.g., painting TextualBody on Canvas
 
-### Non Rectangular Segments
-
-### Style
-
-### Rotation
 
 ### Comment Annotations
 
-### Hotspot Linking
-
-### Activation
-
-### Using Content State
-
- - modify the Container in a particular context (`scope`, storytelling)
+(move to Annotation section)
 
 
+### Choice of Alternative Resources
 
-### Physical Dimension Service
+(move to Annotation section)
 
+
+### Non Rectangular Segments
+
+SvgSelector - move to SpecificResource too ^^
+
+
+### Style
+
+Move to SpecificResource
+
+
+### Rotation
+
+
+### Hotspot Linking and Activation
+
+Move to SpecificResource
+
+
+
+## Conveying Physical Dimensions
+
+(why is this important!?)
+
+(move the props to vocab doc)
+
+### spatialScale
+
+### temporalScale
+
+
+```
+{
+    "spatialScale": {
+        "factor": 22.0,
+        "units": "m"
+    },
+
+    
+    // this would be rarely used
+    "temporalScale": {
+        "factor": 0.00001
+    }
+
+}
+```
+
+`factor`	Required	A floating point ratio.
+`units`	    Required	A real-world measuring unit. Always seconds for temporalScale. Possible values for spatialScale include: "m", "ft". (is that it?)
+
+For a Canvas, it's the physical "size" of each cartesian integer unit.
+For a Scene, it's the physical size of the unit vector. 
+For a timeline it's the ratio of time in the recording to time in the real world.
+
+
+(define props in the Vocabulary doc)
 
 
 ## HTTP Requests and Responses
@@ -557,6 +618,13 @@ Example placing top-left at (0, 1, 0); bottom-left at (0, 0, 0); bottom-right at
 ### Responses
 
 ### Authentication
+
+
+## Accessibility
+
+(new section)
+
+`provides`
 
 
 ## Appendices
