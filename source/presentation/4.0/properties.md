@@ -422,7 +422,7 @@ The value _MUST_ be a string.
 
 | Class         | Description                      |
 | ------------- | -------------------------------- |
-| `Dataset`     | Data not intended to be rendered to humans directly, such as a CSV or RDF |
+| `Dataset`     | Data not intended to be rendered to humans directly, such as a CSV, an RDF serialization or a zip file |
 | `Image`       | Two dimensional visual resources primarily intended to be seen, such as might be rendered with an &lt;img> HTML tag |
 | `Model`       | A three dimensional spatial model intended to be visualized, such as might be rendered with a 3d javascript library |
 | `Sound`       | Auditory resources primarily intended to be heard, such as might be rendered with an &lt;audio> HTML tag |
@@ -598,12 +598,12 @@ The value _MUST_ be an array of strings.
 | `repeat` | Valid on Collections and Manifests, that include Canvases that have at least the `duration` dimension. When the client reaches the end of the duration of the final Canvas in the resource, and the `behavior` value `auto-advance`{: style="white-space:nowrap;"} is also in effect, then the client _SHOULD_ return to the first Canvas, or segment of Canvas, in the resource that has the `behavior` value `repeat` and start playing again. If the `behavior` value `auto-advance` is not in effect, then the client _SHOULD_ render a navigation control for the user to manually return to the first Canvas or segment. Disjoint with `no-repeat`.|
 | `no-repeat` | Valid on Collections and Manifests, that include Canvases that have at least the `duration` dimension. When the client reaches the end of the duration of the final Canvas in the resource, the client _MUST NOT_ return to the first Canvas, or segment of Canvas. This is a default temporal behavior if not specified. Disjoint with `repeat`.|
 | | **Layout Behaviors** |
-| `unordered` | Valid on Collections, Manifests and Ranges. The Canvases included in resources that have this behavior have no inherent order, and user interfaces _SHOULD_ avoid implying an order to the user. Disjoint with `individuals`, `continuous`, and `paged`.|
+| `unordered` | Valid on Collections, Manifests and Ranges. The resources included in resources that have this behavior have no inherent order, and user interfaces _SHOULD_ avoid implying an order to the user. Disjoint with `individuals`, `continuous`, and `paged`.|
 | `individuals` | Valid on Collections, Manifests, and Ranges. For Collections that have this behavior, each of the included Manifests are distinct objects in the given order. For Manifests and Ranges, the included Canvases are distinct views, and _SHOULD NOT_ be presented in a page-turning interface. This is the default layout behavior if not specified. Disjoint with `unordered`, `continuous`, and `paged`. |
-| `continuous` | Valid on Collections, Manifests and Ranges, which include Canvases that have at least `height` and `width` dimensions. Canvases included in resources that have this behavior are partial views and an appropriate rendering might display all of the Canvases virtually stitched together, such as a long scroll split into sections. This behavior has no implication for audio resources. The `viewingDirection` of the Manifest will determine the appropriate arrangement of the Canvases. Disjoint with `unordered`, `individuals` and `paged`. |
-| `paged` | Valid on Collections, Manifests and Ranges, which include Canvases that have at least `height` and `width` dimensions. Canvases included in resources that have this behavior represent views that _SHOULD_ be presented in a page-turning interface if one is available. The first canvas is a single view (the first recto) and thus the second canvas likely represents the back of the object in the first canvas. If this is not the case, see the `behavior` value `non-paged`. Disjoint with `unordered`, `individuals`, `continuous`, `facing-pages` and `non-paged`. |
-| `facing-pages`{: style="white-space:nowrap;"} | Valid only on Canvases, where the Canvas has at least `height` and `width` dimensions. Canvases that have this behavior, in a Manifest that has the `behavior` value `paged`, _MUST_ be displayed by themselves, as they depict both parts of the opening. If all of the Canvases are like this, then page turning is not possible, so simply use `individuals` instead. Disjoint with `paged` and `non-paged`.|
-| `non-paged` | Valid only on Canvases, where the Canvas has at least `height` and `width` dimensions. Canvases that have this behavior _MUST NOT_ be presented in a page turning interface, and _MUST_ be skipped over when determining the page order. This behavior _MUST_ be ignored if the current Manifest does not have the `behavior` value `paged`. Disjoint with `paged` and `facing-pages`. |
+| `continuous` | Valid on Collections, Manifests and Ranges, which include Canvases. Canvases included in resources that have this behavior are partial views and an appropriate rendering might display all of the Canvases virtually stitched together, such as a long scroll split into sections. This behavior has no implication for audio resources. The `viewingDirection` of the Manifest will determine the appropriate arrangement of the Canvases. Disjoint with `unordered`, `individuals` and `paged`. |
+| `paged` | Valid on Collections, Manifests and Ranges, which include Canvases. Canvases included in resources that have this behavior represent views that _SHOULD_ be presented in a page-turning interface if one is available. The first canvas is a single view (the first recto) and thus the second canvas likely represents the back of the object in the first canvas. If this is not the case, see the `behavior` value `non-paged`. Disjoint with `unordered`, `individuals`, and `continuous`. |
+| `facing-pages`{: style="white-space:nowrap;"} | Valid only on Canvases. Canvases that have this behavior, in a Manifest that has the `behavior` value `paged`, _MUST_ be displayed by themselves, as they depict both parts of the opening. If all of the Canvases are like this, then page turning is not possible, so simply use `individuals` instead. Disjoint with `non-paged`.|
+| `non-paged` | Valid only on Canvases. Canvases that have this behavior _MUST NOT_ be presented in a page-turning interface, and _MUST_ be skipped over when determining the page order. This behavior _MUST_ be ignored if the current Manifest does not have the `behavior` value `paged`. Disjoint with `facing-pages`. |
 | | **Collection Behaviors** |
 | `multi-part` | Valid only on Collections. Collections that have this behavior consist of multiple Manifests or Collections which together form part of a logical whole or a contiguous set, such as multi-volume books or a set of journal issues. Clients might render these Collections as a table of contents rather than with thumbnails, or provide viewing interfaces that can easily advance from one member to the next. Disjoint with `together`.|
 | `together` | Valid only on Collections. A client _SHOULD_ present all of the child Manifests to the user at once in a separate viewing area with its own controls. Clients _SHOULD_ catch attempts to create too many viewing areas. This behavior _SHOULD NOT_ be interpreted as applying to the members of any child resources. Disjoint with `multi-part`.|
@@ -620,6 +620,42 @@ The value _MUST_ be an array of strings.
 { "behavior": [ "auto-advance", "individuals" ] }
 ```
 
+##### provides
+
+A set of features or additional functionality that a linked resource enables relative to the linking or including resource, which is not defined by the `type`, `format` or `profile` of the linked resource. It provides information as to why and how a client might want to interact with the resource, rather than what the resource is. For example, a text file (linked resource) that `provides` a `closedCaptions` for a Video (context resource), or an audio file (linked resource) that `provides` an `audioDescription` of a Canvas (context resource).
+
+The value _MUST_ be an array of strings, each string identifies a particular feature and _MUST_ be taken from the table below or the [provides registry][link].
+
+Note that the majority of the values have been selected from [accessibility feature spec][link] and thus use the original form rather than being consistent with the hyphen-based form of the values of `behavior` and `viewingDirection`.
+
+
+* Annotations with the `painting` motivation _SHOULD NOT_ have the `provides` property.<br/>
+  Clients _SHOULD_ ignore the `provides` property on Annotations with the `painting` motivation.
+* Any resource linked to or included in another resource _MAY_ have the `provides` property.<br/>
+  Clients _SHOULD_ process the `provides` property on these resources.
+
+| Value | Description |
+| ----- | ----------- |
+| `closedCaptions` | ... |
+| `alternativeText` | ... |
+| `audioDescription` | ... |
+| `longDescription` | ... |
+| `signLanguage` | ... |
+| `highContrastAudio` | ... |
+| `highContrastDisplay` | ... |
+| `braille` | ... |
+| `tactileGraphic` | ... |
+| `transcript` | ... |
+| `translation` | (IIIF Defined) ... |
+| `subtitles` | (IIIF Defined) ... |
+{: .api-table #table-behavior}
+
+{% include api/code_header.html %}
+``` json-doc
+{ "provides": [ "closedCaption" ] }
+```
+
+
 ##### timeMode
 
 A mode associated with an Annotation that is to be applied to the rendering of any time-based media, or otherwise could be considered to have a duration, used as a body resource of that Annotation. Note that the association of `timeMode` with the Annotation means that different resources in the body cannot have different values. This specification defines the values specified in the table below. Others may be defined externally as an [extension][prezi30-ldce].
@@ -631,9 +667,9 @@ The value _MUST_ be a string.
 
 | Value | Description |
 | ----- | ----------- |
-| `trim` | (default, if not supplied) If the content resource has a longer duration than the duration of portion of the Canvas it is associated with, then at the end of the Canvas's duration, the playback of the content resource _MUST_ also end. If the content resource has a shorter duration than the duration of the portion of the Canvas it is associated with, then, for video resources, the last frame _SHOULD_ persist on-screen until the end of the Canvas portion's duration. For example, a video of 120 seconds annotated to a Canvas with a duration of 100 seconds would play only the first 100 seconds and drop the last 20 second. |
+| `trim` | (default, if not supplied) If the content resource has a longer duration than the duration of the portion of the Canvas it is associated with, then at the end of the Canvas's duration, the playback of the content resource _MUST_ also end. If the content resource has a shorter duration than the duration of the portion of the Canvas it is associated with, then, for video resources, the last frame _SHOULD_ persist on-screen until the end of the Canvas portion's duration. For example, a video of 120 seconds annotated to a Canvas with a duration of 100 seconds would play only the first 100 seconds and drop the last 20 seconds. |
 | `scale` | Fit the duration of content resource to the duration of the portion of the Canvas it is associated with by scaling. For example, a video of 120 seconds annotated to a Canvas with a duration of 60 seconds would be played at double-speed. |
-| `loop` | If the content resource is shorter than the `duration` of the Canvas, it _MUST_ be repeated to fill the entire duration. Resources longer than the `duration` _MUST_ be trimmed as described above. For example, if a 20 second duration audio stream is annotated onto a Canvas with duration 30 seconds, it will be played one and a half times. |
+| `loop` | If the content resource is shorter than the `duration` of the Canvas, it _MUST_ be repeated to fill the entire duration. Resources longer than the `duration` _MUST_ be trimmed as described above. For example, if a 20 second duration audio stream is annotated onto a Canvas with a duration of 30 seconds, it will be played one and a half times. |
 {: .api-table #table-timemode}
 
 {% include api/code_header.html %}
@@ -830,7 +866,7 @@ A small image resource that represents the Agent resource it is associated with.
 
 When more than one logo is present, the client _SHOULD_ pick only one of them, based on the information in the logo properties. For example, the client could select a logo of appropriate aspect ratio based on the `height` and `width` properties of the available logos. The client _MAY_ decide on the logo by inspecting properties defined as [extensions][prezi30-ldce].
 
-The value of this property _MUST_ be an array of JSON objects, each of which _MUST_ have `id` and `type` properties, and _SHOULD_ have `format`. The value of `type` _MUST_ be "Image".
+The value of this property _MUST_ be an array of JSON objects, each of which _MUST_ have `id` and `type` properties, and _SHOULD_ have `format`. The value of `type` _MUST_ be `Image`.
 
  * Agent resources _SHOULD_ have the `logo` property.<br/>
    Clients _MUST_ render `logo` on Agent resources.
@@ -855,7 +891,7 @@ The value of this property _MUST_ be an array of JSON objects, each of which _MU
 
 A resource that is an alternative, non-IIIF representation of the resource that has the `rendering` property. Such representations typically cannot be painted onto a single Canvas, as they either include too many views, have incompatible dimensions, or are compound resources requiring additional rendering functionality. The `rendering` resource _MUST_ be able to be displayed directly to a human user, although the presentation may be outside of the IIIF client. The resource _MUST NOT_ have a splash page or other interstitial resource that mediates access to it. If access control is required, then the [IIIF Authentication API][iiif-auth] is _RECOMMENDED_. Examples include a rendering of a book as a PDF or EPUB, a slide deck with images of a building, or a 3D model of a statue.
 
-The value _MUST_ be an array of JSON objects. Each item _MUST_ have the `id`, `type` and `label` properties, and _SHOULD_ have a `format` property.
+The value _MUST_ be an array of JSON objects. Each item _MUST_ have the `id`, `type` and `label` properties, and _SHOULD_ have the `format` and `language` properties.
 
  * Any resource type _MAY_ have the `rendering` property with at least one item.<br/>
    Clients _SHOULD_ render `rendering` on a Collection, Manifest or Canvas, and _MAY_ render `rendering` on other types of resource.
@@ -936,7 +972,7 @@ A list of one or more service definitions on the top-most resource of the docume
 
 A client encountering a `service` property where the definition consists only of an `id` and `type` _SHOULD_ then check the `services` property on the top-most resource for an expanded definition.  If the service is not present in the `services` list, and the client requires more information in order to use the service, then it _SHOULD_ dereference the `id` (or `@id`) of the service in order to retrieve a service description.
 
-The value _MUST_ be an array of JSON objects. Each object _MUST_ a service resource, as described above.
+The value _MUST_ be an array of JSON objects. Each object _MUST_ be a service resource, as described above.
 
 * A Collection _MAY_ have the `services` property, if it is the topmost Collection in a response document.<br/>
   Clients _SHOULD_ process `services` on a Collection.
@@ -988,11 +1024,6 @@ The value _MUST_ be an array of JSON objects. Each item _MUST_ have the `id` and
   ]
 }
 ```
-
-
-#### abouty-field-name-here
-
-Point to a `Dataset` with more semantics than just `seeAlso`
 
 
 #### 3.3.2. Internal Links
@@ -1177,6 +1208,112 @@ Additional motivations may be added to the Annotation to further clarify the int
 
 
 
+
+
+
+
+##  4. JSON-LD Considerations
+
+This section describes features applicable to all of the Presentation API content. For the most part, these are features of the JSON-LD specification that have particular uses within the API.
+
+### 4.1. Case Sensitivity
+
+Terms in JSON-LD are [case sensitive][org-w3c-json-ld-case].  The cases of properties and enumerated values in IIIF Presentation API responses _MUST_ match those used in this specification. For example to specify that a resource is a Manifest, the property _MUST_ be given as `type` and not `Type` or `tYpE`, and the value _MUST_ be given as `Manifest` and not `manifest` or `manIfEsT`.
+
+### 4.2. Resource Representations
+
+Resource descriptions _SHOULD_ be [embedded][prezi30-terminology] within the JSON description of parent resources, and _MAY_ also be available via separate requests from the HTTP(S) URI given in the resource's `id` property. Links to resources _MUST_ be given as a JSON object with the `id` and `type` properties and _SHOULD_ have `format` or `profile` to give a hint as to what sort of resource is being referred to.
+
+{% include api/code_header.html %}
+``` json-doc
+{
+  "rendering": [
+    {
+      "id": "https://example.org/content/book.pdf",
+      "type": "Text",
+      "label": { "en": [ "Example Book (pdf)" ] },
+      "format": "application/pdf"
+    }
+  ]
+}
+```
+
+### 4.3. Properties with Multiple Values
+
+Any of the properties in the API that can have multiple values _MUST_ always be given as an array of values, even if there is only a single item in that array.
+
+{% include api/code_header.html %}
+``` json-doc
+{
+  "thumbnail": [
+    {
+      "id": "https://example.org/images/thumb1.jpg",
+      "type": "Image",
+      "format": "image/jpeg"
+    }
+  ]
+}
+```
+
+### 4.4. Language of Property Values
+{: #language-of-property-values}
+
+Language _MAY_ be associated with strings that are intended to be displayed to the user for the `label` and `summary` properties, plus the `label` and `value` properties of the `metadata` and `requiredStatement` objects.
+
+The values of these properties _MUST_ be JSON objects, with the keys being the [BCP 47][org-bcp-47] language code for the language, or if the language is either not known or the string does not have a language, then the key _MUST_ be the string `none`. The associated values _MUST_ be arrays of strings, where each item is the content in the given language.
+
+{% include api/code_header.html %}
+``` json-doc
+{
+  "label": {
+    "en": [
+      "Whistler's Mother",
+      "Arrangement in Grey and Black No. 1: The Artist's Mother"
+    ],
+    "fr": [
+      "Arrangement en gris et noir no 1",
+      "Portrait de la mère de l'artiste",
+      "La Mère de Whistler"
+    ],
+    "none": [ "Whistler (1871)" ]
+  }
+}
+```
+
+Note that [BCP 47][org-bcp-47] allows the script of the text to be included after a hyphen, such as `ar-latn`, and clients should be aware of this possibility.
+
+In the case where multiple values are supplied, clients _MUST_ use the following algorithm to determine which values to display to the user.
+
+* If all of the values are associated with the `none` key, the client _MUST_ display all of those values.
+* Else, the client should try to determine the user's language preferences, or failing that use some default language preferences. Then:
+  * If any of the values have a language associated with them, the client _MUST_ display all of the values associated with the language that best matches the language preference.
+  * If all of the values have a language associated with them, and none match the language preference, the client _MUST_ select a language and display all of the values associated with that language.
+  * If some of the values have a language associated with them, but none match the language preference, the client _MUST_ display all of the values that do not have a language associated with them.
+
+Note that this does not apply to [embedded][prezi30-terminology] textual bodies in Annotations, which use the Web Annotation pattern of `value` and `language` as separate properties.
+
+### 4.5. HTML Markup in Property Values
+
+Minimal HTML markup _MAY_ be included for processing in the `summary` property and the `value` property in the `metadata` and `requiredStatement` objects. It _MUST NOT_ be used in `label` or other properties. This is included to allow content publishers to add links and simple formatting instructions to blocks of text. The content _MUST_ be well-formed XML and therefore _MUST_ be wrapped in an element such as `p` or `span`. There _MUST NOT_ be whitespace on either side of the HTML string, and thus the first character in the string _MUST_ be a '<' character and the last character _MUST_ be '>', allowing a consuming application to test whether the value is HTML or plain text using these. To avoid a non-HTML string matching this, it is _RECOMMENDED_ that an additional whitespace character be added to the end of the value in situations where plain text happens to start and end this way.
+
+In order to avoid HTML or script injection attacks, clients _MUST_ remove:
+
+  * Tags such as `script`, `style`, `object`, `form`, `input` and similar.
+  * All attributes other than `href` on the `a` tag, `src` and `alt` on the `img` tag.
+  * All `href` attributes that start with the strings other than "http:", "https:", and "mailto:".
+  * CData sections.
+  * XML Comments.
+  * Processing instructions.
+
+Clients _SHOULD_ allow only `a`, `b`, `br`, `i`, `img`, `p`, `small`, `span`, `sub` and `sup` tags. Clients _MAY_ choose to remove any and all tags, therefore it _SHOULD NOT_ be assumed that the formatting will always be rendered.  Note that publishers _MAY_ include arbitrary HTML content for processing using customized or experimental applications, and the requirements for clients assume an untrusted or unknown publisher.
+
+{% include api/code_header.html %}
+``` json-doc
+{ "summary": { "en": [ "<p>Short <b>summary</b> of the resource.</p>" ] } }
+```
+
+### 4.6. Linked Data Context and Extensions
+
 The top level resource in the response _MUST_ have the `@context` property, and it _SHOULD_ appear as the very first key/value pair of the JSON representation. This tells Linked Data processors how to interpret the document. The IIIF Presentation API context, below, _MUST_ occur once per response in the top-most resource, and thus _MUST NOT_ appear within [embedded][prezi30-terminology] resources. For example, when embedding a Canvas within a Manifest, the Canvas will not have the `@context` property.
 
 The value of the `@context` property _MUST_ be either the URI `http://iiif.io/api/presentation/{{ page.major }}/context.json` or a JSON array with the URI `http://iiif.io/api/presentation/{{ page.major }}/context.json` as the last item. Further contexts, such as those for local or [registered extensions][registry], _MUST_ be added at the beginning of the array.
@@ -1206,7 +1343,7 @@ The JSON representation _MUST NOT_ include the `@graph` key at the top level. Th
 
 There are some common terms used in more than one JSON-LD context document. Every attempt has been made to minimize these collisions, but some are inevitable. In order to know which specification is in effect at any given point, the class of the resource that has the property is the primary governing factor. Thus properties on Annotation based resources use the context from the [Web Annotation Data Model][org-w3c-webanno], whereas properties on classes defined by this specification use the IIIF Presentation API context's definition.
 
-There is one property that is in direct conflict - the `label` property is defined by both and is available for every resource. The use of `label` in IIIF follows modern best practices for internationalization by allowing the language to be associated with the value using the language map construction [described above][prezi30-languages]. The Web Annotation Data Model uses it only for [Annotation Collections][prezi30-annocoll], and mandates the format is a string. For this property, the API overrides the definition from the Annotation model to ensure that labels can consistently be represented in multiple languages.
+There is one property that is in direct conflict - the `label` property is defined by both and is available for every resource. The use of `label` in IIIF follows modern best practices for internationalization by allowing the language to be associated with the value using the language map construction [described above][prezi30-languages], also allowing multiple languages to be used. The Web Annotation Data Model uses it only for [Annotation Collections][prezi30-annocoll], and mandates the format is a string. For this property, the API overrides the definition from the Annotation model to ensure that labels can consistently be represented in multiple languages.
 
 The following properties are defined by both, and the IIIF representation is more specific than the Web Annotation Data Model but are not in conflict, or are never used on the same resource:
 
