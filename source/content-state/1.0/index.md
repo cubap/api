@@ -578,7 +578,7 @@ This example should cause a viewer to open Manifest `https://example.org/iiif/id
   "@context": "http://iiif.io/api/presentation/3/context.json",
   "id": "https://example.org/import/3",
   "type": "Annotation",
-  "motivation": "contentState",
+  "motivation": ["contentState"],
   "target": [
       {
           "id": "https://example.org/iiif/item1/canvas37",
